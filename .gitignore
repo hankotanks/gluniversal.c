@@ -2,6 +2,5 @@
 .vscode/
 main
 main.exe
-build/
 lib/*.a
 compile_commands.json
