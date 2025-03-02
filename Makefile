@@ -9,22 +9,18 @@
 #      output to the base directory $(DIR_LIB_STUB)
 
 TARGET := main
-CC := gcc
-export CC
-AR := ar
-export AR
+export CC := gcc
+export AR := ar
 
 ROOT := $(patsubst %/,%, $(patsubst %\,%, $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
 
 DIR_LIB_STUB := lib
-DIR_LIB := $(ROOT)/$(DIR_LIB_STUB)
-export DIR_LIB
+export DIR_LIB := $(ROOT)/$(DIR_LIB_STUB)
 DIR_LIB_LIST := $(dir $(wildcard $(DIR_LIB_STUB)/*/Makefile))
 DIR_INC := include
 DIR_SRC := src
 DIR_OBJ_STUB := build
-DIR_OBJ := $(ROOT)/$(DIR_OBJ_STUB)
-export DIR_OBJ
+export DIR_OBJ := $(ROOT)/$(DIR_OBJ_STUB)
 
 ifeq ($(wildcard $(DIR_OBJ_STUB)/),)
     $(shell mkdir -p $(DIR_OBJ_STUB))
@@ -34,8 +30,9 @@ uniq = $(if $1,$(firstword $1) $(call uniq,$(filter-out $(firstword $1),$1)))
 
 CFLAGS := -I$(DIR_INC)
 CFLAGS += $(addprefix -isystem , $(wildcard $(DIR_LIB_STUB)/*/include))
-CFLAGS += $(foreach dir, $(DIR_LIB_LIST), $(shell $(MAKE) -C $(dir) | tail -n 2 | head -n 1))
-LIBS := $(foreach dir, $(DIR_LIB_LIST), $(shell $(MAKE) lib -C $(dir) | tail -n 2 | head -n 1))
+ENV := CC=$(CC) AR=$(AR) DIR_OBJ=$(DIR_OBJ) DIR_LIB=$(DIR_LIB)
+CFLAGS += $(foreach dir, $(DIR_LIB_LIST), $(shell $(MAKE) $(ENV) -C $(dir) | tail -n 2 | head -n 1))
+LIBS := $(foreach dir, $(DIR_LIB_LIST), $(shell $(MAKE) $(ENV) lib -C $(dir) | tail -n 2 | head -n 1))
 LIBS_DEDUP := $(call uniq, $(LIBS))
 LDLIBS :=
 LDLIBS += $(LIBS_DEDUP)
