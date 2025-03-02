@@ -5,7 +5,6 @@ else
     LDLIBS := -lX11 -lGL -lXrandr
 endif
 
-
 all:
 	$(CC) $(CFLAGS) -isystem include -c src/RGFW.c -o $(DIR_OBJ)/RGFW.o
 	@echo $(CFLAGS)
