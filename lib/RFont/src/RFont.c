@@ -1,0 +1,4 @@
+#define RFONT_IMPLEMENTATION
+#define RFONT_RENDER_LEGACY
+#define STBTT_STATIC
+#include <RFont.h>

@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include <RGFW.h>
+#include <RFont.h>
 #include <stdio.h>
 #include "draw.h"
 
