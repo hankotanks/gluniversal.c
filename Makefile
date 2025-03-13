@@ -11,6 +11,7 @@
 TARGET := main
 export CC := gcc
 export AR := ar
+
 CFLAGS :=
 LDLIBS :=
 
@@ -64,5 +65,9 @@ $(DIR_OBJ_STUB)/%.o: $(DIR_SRC)/%.c
 	@echo Compiled $< to $@.
 
 clean:
-	-$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C "$(ROOT)/$(dir)";)
+ifeq ($(OS),Windows_NT)
+	-$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C "$(ROOT)/$(dir)" &&) rem
+else
+    -$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C $(dir);)
+endif
 	$(RM) -r $(wildcard $(DIR_OBJ)/*.o)
