@@ -14,4 +14,3 @@ lib:
 	@echo $(LDLIBS)
 
 clean:
-	@true
