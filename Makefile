@@ -12,29 +12,43 @@ TARGET := main
 export CC := gcc
 export AR := ar
 
+CFLAGS :=
+LDLIBS :=
+
 ROOT := $(patsubst %/,%, $(patsubst %\,%, $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
 
 DIR_INC := include
 DIR_SRC := src
+DIR_BIN := bin
 DIR_OBJ_STUB := build
 export DIR_OBJ := $(ROOT)/$(DIR_OBJ_STUB)
 DIR_LIB_STUB := lib
 DIR_LIB_LIST := $(dir $(wildcard $(DIR_LIB_STUB)/*/Makefile))
 export DIR_LIB := $(ROOT)/$(DIR_LIB_STUB)
 
+ifeq ($(OS),Windows_NT)
+    export PATH:=$(ROOT)/$(DIR_BIN);$(PATH)
+    RM := rm.exe -f
+    TAIL := tail.exe
+    HEAD := head.exe
+else
+    TAIL := tail
+    HEAD := head
+endif
+
 uniq = $(if $1,$(firstword $1) $(call uniq,$(filter-out $(firstword $1),$1)))
 
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
-    $(info Checking status of libraries.)
-    CFLAGS := -I$(DIR_INC)
+    $(info Checking status of libraries:)
+    CFLAGS += -I$(DIR_INC)
     CFLAGS += $(addprefix -isystem , $(wildcard $(DIR_LIB_STUB)/*/include))
     ENV := CC=$(CC) AR=$(AR) DIR_OBJ=$(DIR_OBJ) DIR_LIB=$(DIR_LIB)
-    CFLAGS += $(foreach dir, $(DIR_LIB_LIST), $(shell $(MAKE) $(ENV) -C $(dir) | tail -n 2 | head -n 1))
-    LIBS := $(foreach dir, $(DIR_LIB_LIST), $(shell $(MAKE) $(ENV) lib -C $(dir) | tail -n 2 | head -n 1))
-    LDLIBS :=
+    CFLAGS += $(foreach dir, $(DIR_LIB_LIST), $(shell $(basename $(notdir $(MAKE))) $(ENV) -C $(dir) | $(TAIL) -n 2 | $(HEAD) -n 1))
+    CFLAGS := $(filter-out %ECHO is off.%, $(CFLAGS))
+    LIBS := $(foreach dir, $(DIR_LIB_LIST), $(shell $(basename $(notdir $(MAKE))) $(ENV) lib -C $(dir) | $(TAIL) -n 2 | $(HEAD) -n 1))
+    LIBS := $(filter-out %ECHO is off.%, $(LIBS))
     LDLIBS += $(call uniq, $(LIBS))
     LDFLAGS := -L$(DIR_LIB_STUB)
-    $(info Finished.)
 endif
 
 all: $(TARGET) 
@@ -43,15 +57,19 @@ SRC = $(wildcard $(DIR_SRC)/*.c)
 OBJ = $(patsubst $(DIR_SRC)/%.c, $(DIR_OBJ_STUB)/%.o, $(SRC))
 
 $(TARGET): $(OBJ)
+	@echo Assembling executable:
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(wildcard $(DIR_OBJ_STUB)/*.o) $(LDLIBS)
-	@echo "Assembled executable ($@)."
 
 $(DIR_OBJ_STUB)/%.o: $(DIR_SRC)/%.c
+	@echo Compiling $< to $@:
 	$(CC) $(CFLAGS) $(LDFLAGS) -c $< -o $@ $(LDLIBS)
-	@echo "Compiled $< to $@."
 
 clean:
-	$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C $(dir);)
-	@if ! $(RM) -r $(wildcard $(DIR_OBJ_STUB)/*.o); then \
-		@echo "Unable to clean up object files. Exiting."; exit 1; \
-	fi
+	@echo Cleaning libraries:
+ifeq ($(OS),Windows_NT)
+	-$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C "$(ROOT)/$(dir)" &&) echo;
+else
+	-$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C $(dir);)
+endif
+	@echo Removing object files:
+	$(RM) -r $(wildcard $(DIR_OBJ)/*.o)

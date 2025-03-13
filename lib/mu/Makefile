@@ -6,4 +6,3 @@ lib:
 	@echo
 
 clean:
-	@true
