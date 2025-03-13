@@ -26,7 +26,6 @@ DIR_LIB_LIST := $(dir $(wildcard $(DIR_LIB_STUB)/*/Makefile))
 export DIR_LIB := $(ROOT)/$(DIR_LIB_STUB)
 
 ifeq ($(OS),Windows_NT)
-    $(shell echo on)
     export PATH:=$(ROOT)/$(DIR_BIN);$(PATH)
     RM := rm.exe -f
     TAIL := tail.exe
@@ -58,12 +57,12 @@ OBJ = $(patsubst $(DIR_SRC)/%.c, $(DIR_OBJ_STUB)/%.o, $(SRC))
 
 $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(wildcard $(DIR_OBJ_STUB)/*.o) $(LDLIBS)
-	@echo Assembled executable ($@).
+    $(info Assembling executable.)
 
 $(DIR_OBJ_STUB)/%.o: $(DIR_SRC)/%.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c $< -o $@ $(LDLIBS)
 	@echo Compiled $< to $@.
 
 clean:
-	-$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C "$(ROOT)/$(dir)" && call)
+	-$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C "$(ROOT)/$(dir)";)
 	$(RM) -r $(wildcard $(DIR_OBJ)/*.o)
