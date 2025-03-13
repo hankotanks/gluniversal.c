@@ -69,7 +69,7 @@ clean:
 ifeq ($(OS),Windows_NT)
 	-$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C "$(ROOT)/$(dir)" &&) echo;
 else
-    -$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C $(dir);)
+	-$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C $(dir);)
 endif
 	@echo Removing object files:
 	$(RM) -r $(wildcard $(DIR_OBJ)/*.o)
