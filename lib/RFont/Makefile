@@ -8,9 +8,9 @@ endif
 
 all:
 	$(CC) $(CFLAGS) -isystem include -c src/RFont.c -o $(DIR_OBJ)/RFont.o
-	@echo $(CFLAGS)
+	@$(PUTS) $(CFLAGS)
 
 lib:
-	@echo $(LDLIBS)
+	@$(PUTS) $(LDLIBS)
 
 clean:

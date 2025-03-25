@@ -7,9 +7,9 @@ endif
 
 all:
 	$(CC) $(CFLAGS) -isystem include -c src/glew.c -o $(DIR_OBJ)/glew.o
-	@echo $(CFLAGS)
+	@$(PUTS) $(CFLAGS)
 
 lib:
-	@echo $(LDLIBS)
+	@$(PUTS) $(LDLIBS)
 
 clean:

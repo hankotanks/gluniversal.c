@@ -1,8 +1,8 @@
 all:
 	$(CC) -Iinclude -c src/microui.c -o $(DIR_OBJ)/microui.o
-	@echo
+	@$(PUTS)
 
 lib:
-	@echo
+	@$(PUTS)
 
 clean:

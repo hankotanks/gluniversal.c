@@ -7,9 +7,9 @@ endif
 
 all:
 	$(CC) $(CFLAGS) -isystem include -c src/RGFW.c -o $(DIR_OBJ)/RGFW.o
-	@echo $(CFLAGS)
+	@$(PUTS) $(CFLAGS)
 
 lib:
-	@echo $(LDLIBS)
+	@$(PUTS) $(LDLIBS)
 
 clean:

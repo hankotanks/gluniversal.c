@@ -31,11 +31,11 @@ ifeq ($(OS),Windows_NT)
     RM := rm.exe -f
     TAIL := tail.exe
     HEAD := head.exe
-    PUTS := echo.exe
+    export PUTS := echo.exe
 else
     TAIL := tail
     HEAD := head
-    PUTS := echo
+    export PUTS := echo
 endif
 
 uniq = $(if $1,$(firstword $1) $(call uniq,$(filter-out $(firstword $1),$1)))
