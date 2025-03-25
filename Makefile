@@ -31,15 +31,17 @@ ifeq ($(OS),Windows_NT)
     RM := rm.exe -f
     TAIL := tail.exe
     HEAD := head.exe
+    PUTS := echo.exe
 else
     TAIL := tail
     HEAD := head
+    PUTS := echo
 endif
 
 uniq = $(if $1,$(firstword $1) $(call uniq,$(filter-out $(firstword $1),$1)))
 
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
-    $(info Checking status of libraries:)
+    $(info Checking status of libraries.)
     CFLAGS += -I$(DIR_INC)
     CFLAGS += $(addprefix -isystem , $(wildcard $(DIR_LIB_STUB)/*/include))
     ENV := CC=$(CC) AR=$(AR) DIR_OBJ=$(DIR_OBJ) DIR_LIB=$(DIR_LIB)
@@ -57,19 +59,20 @@ SRC = $(wildcard $(DIR_SRC)/*.c)
 OBJ = $(patsubst $(DIR_SRC)/%.c, $(DIR_OBJ_STUB)/%.o, $(SRC))
 
 $(TARGET): $(OBJ)
-	@echo Assembling executable:
+	@$(PUTS) Assembling executable:
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(wildcard $(DIR_OBJ_STUB)/*.o) $(LDLIBS)
 
 $(DIR_OBJ_STUB)/%.o: $(DIR_SRC)/%.c
-	@echo Compiling $< to $@:
+	@$(PUTS) Compiling $< to $@:
 	$(CC) $(CFLAGS) $(LDFLAGS) -c $< -o $@ $(LDLIBS)
 
 clean:
-	@echo Cleaning libraries:
-ifeq ($(OS),Windows_NT)
-	-$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C "$(ROOT)/$(dir)" &&) echo;
-else
-	-$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C $(dir);)
-endif
-	@echo Removing object files:
+	@$(PUTS) Removing object files:
 	$(RM) -r $(wildcard $(DIR_OBJ)/*.o)
+	@$(PUTS) Cleaning libraries:
+ifeq ($(OS),Windows_NT)
+	@-$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C "$(ROOT)/$(dir)" &&) $(PUTS);
+else
+	@-$(foreach dir, $(DIR_LIB_LIST), $(MAKE) clean -C $(dir);)
+	@$(PUTS) ""
+endif
